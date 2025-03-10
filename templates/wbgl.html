@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block style %}
+   <link rel="stylesheet" href="../static/layui/css/layui.css"/>
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css"/>
+    <style>
+    /* 表格样式 */
+    .table {
+        width: 500px;
+        margin: 0 auto;
+        padding-top: 40px;
+    }
+
+    .table tr {
+        height: 40px;
+        align-items: center;
+        font-size: 14px;
+        font-family: Microsoft YaHei;
+        line-height: 40px;
+    }
+
+    .table tr td {
+        padding: 0 !important;
+    }
+    
+    /* 删除按钮样式 */
+    .layui-layer-btn {
+        text-align: center !important;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid content-top-gap">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-breadcrumb">
+                <li class="breadcrumb-item"><a href="/index">主页</a></li>
+                <li class="breadcrumb-item active" aria-current="page">文本管理</li>
+            </ol>
+        </nav>
+        <div class="children-body">
+            <div class="table-container">
+                <table id="textTable" class="table-row" lay-size="sm" lay-filter="textTable"></table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        layui.use(['table', 'layer'], function () {
+            let table = layui.table;
+            let layer = layui.layer;
+            // 渲染表格
+            let textTable = table.render({
+                elem: "#textTable",
+                page: true,
+                limit: 10,
+                limits: [5, 10],
+                url: '/get_wb',  // 后端接口，获取文本数据
+                method: 'GET',
+                where: {
+                    name: ''
+                },
+                cols: [[
+                    {field: 'id', title: 'ID', align: 'center', width: '5%', fixed: 'left'},
+                    {field: 'src', title: '原始文本', align: 'center', width: '25%', fixed: 'left'},
+                    {field: 'dest', title: '纠错后文本', align: 'center', width: '25%', fixed: 'left'},
+                    {field: 'status', title: '状态', align: 'center', width: '15%', fixed: 'left'},
+                    {field: 'create_time', title: '创建时间', align: 'center', width: '10%', fixed: 'left'},
+                    {
+                        field: 'operate',
+                        title: '操作',
+                        align: 'center',
+                        width: '10%',
+                        fixed: 'left',
+                        toolbar: '#operate'
+                    },
+                ]],
+                toolbar: '#toolbar',
+                defaultToolbar: [],
+            });
+
+            // 监听行操作
+            table.on('tool(textTable)', function (obj) {
+                let text = obj.data;
+                // 删除操作
+                if (obj.event == "del") {
+                    delText(text);
+                }
+            });
+
+            // 删除文本功能函数
+            function delText(text) {
+                layer.open({
+                    title: '删除文本',
+                    btn: ['确定', '取消'],
+                    content: '确定要删除吗？',
+                    yes: function (index) {
+                        $.ajax({
+                            url: '/del_wb',
+                            method: 'post',
+                            data: { id: text.id }, // 只发送文本的 ID
+                            dataType: 'JSON',
+                            success: function (res) {
+                                layer.msg("删除成功");
+                                textTable.reload();
+                            },
+                            error: function (res) {
+                                layer.msg("删除失败");
+                            }
+                        });
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- 操作栏模板 -->
+    <script type="text/html" id="operate">
+        <div>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </div>
+    </script>
+
+    
+{% endblock %}

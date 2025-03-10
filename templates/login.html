@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>登录</title>
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/dist/layui.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .help-block {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <section id="content">
+        <form>
+            <h1>用户登录</h1>
+            <div>
+                <input type="text" placeholder="账户" required="" name="username" id="username"/>
+            </div>
+            <div>
+                <input type="password" placeholder="密码" required="" name="password" id="password"/>
+            </div>
+            <div class="">
+                <span class="help-block u-errormessage" id="js-server-helpinfo">&nbsp;</span></div>
+            <div>
+                <button type="button" class="btn btn-primary"
+                        id="login">登录
+                </button>
+            </div>
+        </form><!-- form -->
+    </section><!-- content -->
+</div>
+<!-- container -->
+<br><br><br><br>
+
+</body>
+<script>
+    layui.use(['element', 'layer'], function () {
+        var layer = layui.layer;
+        $(function () {
+            $("#login").click(function () {
+                var username = $("#username").val();
+                var password = $("#password").val();
+                if ("" == username || undefined == username) {
+                    layer.msg("账户不能为空", {icon: 7});
+                    return
+                }
+                if ("" == password || undefined == password) {
+                    layer.msg("密码不能为空", {icon: 7});
+                    return
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: "/user/login_check",
+                    dataType: 'json', //服务端返回json格式的数据
+                    data: {'username': username, 'password': password},
+                    success: function (data) { // 这里的data就是返回的json格式的数据
+                        window.location.href = '/index'
+                    },
+                    error: function (xhr, type) {
+                        layer.msg("账户密码不正确！", {icon: 5});
+                    }
+                });
+
+            })
+            $("#register").click(function () {
+                var username = $("#username2").val();
+                var password = $("#password2").val();
+                var age = $('#age').val()
+                var phone = $('#phone').val()
+                if ("" == username || undefined == username) {
+                    layer.msg("用户名不能为空", {icon: 7});
+                    return
+                }
+                if ("" == password || undefined == password) {
+                    layer.msg("密码不能为空", {icon: 7});
+                    return
+                }
+                if ("" == age || undefined == age) {
+                    layer.msg("年龄不能为空", {icon: 7});
+                    return
+                }
+                if ("" == phone || undefined == phone) {
+                    layer.msg("电话不能为空", {icon: 7});
+                    return
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: "/user/register",
+                    dataType: 'json', //服务端返回json格式的数据
+                    data: $('#my-form').serialize(),
+                    success: function (data) { // 这里的data就是返回的json格式的数据
+                        layer.msg('注册成功！', {icon: 6})
+
+                        setTimeout(function () {
+                            window.location.href = "/"
+                        }, 1000);
+
+                    },
+                    error: function (xhr, type) {
+                        if (xhr.status == 401) {
+                            layer.msg("注册失败！", {icon: 5})
+                        } else if (xhr.status == 403) {
+                            layer.msg('用户已存在！2s后自动跳转到登录页面', {icon: 7})
+                            setTimeout(function () {
+                                window.location.href = '/'
+                            }, 2000)
+
+                        }
+                    }
+                });
+            })
+        })
+    })
+</script>
+
+</html>

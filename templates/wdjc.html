@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block style %}
+    <link rel="stylesheet" href="../static/layui/css/layui.css"/>
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css"/>
+    <style>
+        .content-top-gap {
+            margin-top: 20px;
+        }
+        .my-breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .breadcrumb-item.active {
+            color: #6c757d;
+        }
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .input-section, .output-section {
+            width: 48%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .input-section {
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .output-section {
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .output-text {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-y: auto;
+            white-space: pre-wrap; /* 保留换行和空格 */
+        }
+        .layui-btn {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .layui-btn:hover {
+            background-color: #45a049;
+        }
+        .layui-btn:active {
+            background-color: #388e3c;
+        }
+        .highlight {
+            text-decoration: underline wavy red; /* 红色波浪线 */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid content-top-gap">
+       <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-breadcrumb">
+                <li class="breadcrumb-item"><a href="/index">主页</a></li>
+                <li class="breadcrumb-item active" aria-current="page">文档纠错</li>
+            </ol>
+        </nav>
+        
+        <div class="layui-row content-container">
+            <!-- 输入部分 -->
+            <div class="input-section">
+                <h3 class="text-center">上传文件</h3>
+                <button type="button" class="layui-btn" id="uploadButton">选择文件</button>
+                <input type="file" id="fileInput" accept=".doc,.docx" style="display: none;" />
+            </div>
+    
+            <!-- 输出部分 -->
+            <div class="output-section">
+                <h3 class="text-center">修改后的文本</h3>
+                <div class="output-text" id="correctedText" readonly></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+    
+{% block script %}
+   <script>
+    document.getElementById('uploadButton').addEventListener('click', function() {
+        document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            uploadFile(file);
+        }
+    });
+
+    function uploadFile(file) {
+        // 创建一个 FormData 对象
+        const formData = new FormData();
+        formData.append('document', file);
+
+        // 发起一个 POST 请求将文件上传到后端接口
+        fetch('/correct_doc', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "有错误") {
+                // 如果返回的状态为"有错误"，显示修改后的文本并解析 HTML 标签
+                document.getElementById('correctedText').innerHTML = data.result; // 使用 .innerHTML 而不是 .value
+            } else {
+                document.getElementById('correctedText').innerHTML = "没有错误，文本未修改。";
+            }
+        })
+        .catch(error => {
+            console.error('上传失败:', error);
+            document.getElementById('correctedText').innerHTML = "上传过程中出现错误。";
+        });
+    }
+</script>
+{% endblock %}

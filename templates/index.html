@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block style %}
+    <link rel="stylesheet" href="../static/layui/css/layui.css"/>
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css"/>
+    <style>
+        .chart-title{
+             text-align: center; /* 水平居中 */
+            margin-bottom: 5px; /* 与图表之间的间距 */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="server-panel panel panel-default">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-breadcrumb">
+                <li class="breadcrumb-item"><a href="/index">主页</a></li>
+            </ol>
+        </nav>
+        <div class="chart-title">
+            <h3 class="panel-heading">近一周访问量</h3>
+        </div>
+        
+        <div id="chart" style="width: 100%;height:400px;"></div>
+    </div>
+{% endblock %}
+
+
+{% block script %}
+    <script src="../static/js/echarts.min.js"></script>
+    <script type="text/javascript">
+        var seven_days = {{ seven_days | safe}};
+        var seven_count_list = {{ seven_count_list | safe}};
+        layui.use(['layer', 'jquery'], function () {
+            var layer = layui.layer;
+            var $ = layui.jquery;
+            //图表
+            var echart1 = document.getElementById("chart");
+
+            var myChart1 = echarts.init(echart1);
+
+            //图表1--堆叠区域图
+            option1 = {
+                tooltip: {// 提示框组件。// trigger:'item' 默认的鼠标移动到色块上触发
+                    trigger: 'axis', // 鼠标只要在轴上就会触发
+                    name: '当天访问量'
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+
+                xAxis: {
+                    type: 'category',
+                    data: seven_days,
+
+
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        data: seven_count_list,
+                        name: "当天访问量",
+                        type: 'line',
+                        // symbol:'circle', //图标形状
+                        symbolSize: 10,  //图标尺寸
+                        itemStyle: {
+                            normal: {
+                                color: "#177DE4" //图标颜色
+                            }
+                        },
+                        lineStyle: {
+                            normal: {
+                                width: 2,  //连线粗细
+                                color: "#177DE4"  //连线颜色
+                            }
+                        },
+                    }
+                ]
+            };
+            myChart1.setOption(option1);
+
+
+        });
+    </script>
+{% endblock %}

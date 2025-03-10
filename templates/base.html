@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .body {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+
+        }
+
+        .left {
+            width: 200px;
+            height: 100%;
+            margin: 0;
+            background: #4d5e70 bottom;
+            left: 0
+        }
+
+        .top {
+            height: 70px;
+            background-color: #354457;
+            width: 100%;
+
+        }
+        .right{
+            left: 200px;
+            top:70px;
+            height: 100%;
+            width: 100%;
+        }
+        .bottom {
+            top: 70px;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            display: flex;
+        }
+        ul li{
+            padding:5px 20px;
+            font-size: 16px;
+            height: 40px;
+            line-height: 40px;
+
+        }
+        ul li a{
+            color: #aab1b7;
+            display: block;
+        }
+        .active{
+           background-color:  #3d4e60;
+            border-right: 4px solid #647f9d;
+           ; color: #fff!important;
+        }
+        .text_active{
+            color: #fff;!important;
+        }
+    </style>
+    {% block style %}
+    {% endblock %}
+    <link href="/static/layui/css/layui.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+</head>
+
+
+<body>
+<div class="body">
+    <div class="top">
+        <span style="padding: 20px;color: #fff;font-size: 22px;line-height: 72px">文本纠错系统</span>
+        <div style="float: right;right: 30px;color: #fff;font-size: 16px;line-height: 72px;height: 100%;padding: 0 20px">当前登录用户:{{ username }}</div>
+    </div>
+    <div class="bottom">
+        <div class="left">
+            <ul style="padding-top:30px">
+                <li class="index">
+                     <a href="/index" class="">
+                    <img src="/static/img/icon_house_grey.png" height="24px"/>
+                   首&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;页</a>
+                </li>
+
+                <li class="wbjc">
+                     <a href="/wbjc" class="first-menu">
+                     <img src="/static/img/icon_user_grey.png" height="24px"/>
+                   文本纠错</a>
+                </li>
+                
+                <li class="wdjc">
+                     <a href="/wdjc" class="first-menu">
+                     <img src="/static/img/icon_house_grey.png" height="24px"/>
+                   文档纠错</a>
+
+                </li>
+
+                <li class="wbgl">
+                     <a href="/wbgl" class="first-menu">
+                     <img src="/static/img/icon_house_grey.png" height="24px"/>
+                   文本管理</a>
+                </li>
+                
+                <li class="wdgl">
+                     <a href="/wdgl" class="first-menu">
+                     <img src="/static/img/icon_house_grey.png" height="24px"/>
+                   文档管理</a>
+                </li>
+                
+                <li class="password">
+                     <a href="/user/password" class="first-menu">
+                     <img src="/static/img/icon_rule_grey.png" height="24px"/>
+                   修改密码</a>
+                </li>
+                
+                <li class="user">
+                     <a href="/user/user" class="first-menu">
+                     <img src="/static/img/icon_chara_grey.png" height="24px"/>
+                   用户管理</a>
+                </li>
+            </ul>
+        </div>
+        <div class='right'>
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+var cur = window.location.pathname;
+console.log(cur)
+if(cur.indexOf('password') > -1){
+    cur = 'password'
+}
+else if(cur.indexOf('user') > -1){
+    cur ='user'
+}else if (cur.indexOf('index') > -1) {
+    cur = 'index'
+} else if (cur.indexOf('wbjc') > -1) {
+    cur = 'wbjc'
+}
+else if (cur.indexOf('wdjc') > -1) {
+    cur = 'wdjc'
+}
+else if (cur.indexOf('wbgl') > -1) {
+    cur = 'wbgl'
+}
+else if (cur.indexOf('wdgl') > -1) {
+    cur = 'wdgl'
+}else if (cur.indexOf('descryption') > -1) {
+    cur = 'descryption'
+}
+
+$('.'+cur).addClass('active')
+$('.'+cur).children('a').addClass('text_active')
+</script>
+
+{% block script %}
+{% endblock %}
+</html>

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block style %}
+    <link rel="stylesheet" href="../static/layui/css/layui.css"/>
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/layui/layui.js"></script>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css"/>
+{% endblock %}
+
+{% block content %}
+     <div class="container-fluid content-top-gap">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-breadcrumb">
+                <li class="breadcrumb-item"><a href="/index">主页</a></li>
+                <li class="breadcrumb-item active" aria-current="page">文档管理</li>
+            </ol>
+        </nav>
+        <div class="children-body">
+        <div class="table">
+            <table id="userTable" lay-size="sm" lay-filter="userTable"></table>
+        </div>
+    </div>
+
+<script>
+    {#var csrftoken = "{{csrf_token()}}"#}
+    layui.use(['element', 'table', 'layer', 'form'], function () {
+        let element = layui.element;
+        let table = layui.table;
+        let form = layui.form;
+        let userInfoLayer = null;
+
+        // 渲染表格
+        let userTable = table.render({
+            elem: "#userTable",
+            page: true,
+            limit: 5,
+            limits: [5, 10],
+            url: '/get_wd',
+            method: 'GET',
+            where: {
+                'name': ''
+            },
+            cols: [[
+                {field: 'id', title: 'ID', align: 'center', width: '5%', fixed: 'left'},
+                {field: 'name', title: '文档名称', align: 'center', width: '15%', fixed: 'left'},
+                {field: 'src', title: '原始文档', align: 'center', width: '20%', fixed: 'left'},
+                {field: 'dest', title: '纠错后文档', align: 'center', width: '20%', fixed: 'left'},
+                {field: 'status', title: '状态', align: 'center', width: '5%', fixed: 'left'},
+                {field: 'create_time', title: '创建时间', align: 'center', width: '15%', fixed: 'left'},
+                {
+                    field: 'operate',
+                    title: '操作',
+                    align: 'center',
+                    width: '10%',
+                    fixed: 'left',
+                    toolbar: '#operate'
+                },
+            ]],
+            toolbar: '#toolbar',
+            defaultToolbar: [],
+            // 表格渲染完执行
+            done: function (res, curr, count) {
+                $("[data-field='password']").css('display', 'none'); // 隐藏密码
+                $("[data-field='count']").css('display', 'none'); // 隐藏密码
+                // 回车搜索
+                $('#keyword').bind('keyup', function (event) {
+                    if (event.keyCode == '13') {
+                        searchUser()
+                    }
+                })
+            }
+        });
+
+        // 监听行操作
+        table.on('tool(userTable)', function (obj) {
+            let doc = obj.data;
+            
+            // 删除操作
+            if (obj.event == "del") {
+                delDoc(doc);
+            }
+        });
+        
+        //  删除文档
+        // 删除文档功能函数
+        function delDoc(doc) {
+            layer.open({
+                title: '删除文档',
+                btn: ['确定', '取消'],
+                content: '确定要删除该文档吗？',
+                yes: function (index) {
+                    $.ajax({
+                        url: '/del_doc', // 后端接口，删除文档
+                        method: 'post',  // 请求方法为 POST
+                        data: { id: doc.id }, // 发送文档的 ID
+                        dataType: 'JSON', // 期望返回的数据类型为 JSON
+                        success: function (res) {
+                            layer.msg("删除成功"); // 提示删除成功
+                            userTable.reload(); // 重新加载表格数据
+                        },
+                        error: function (res) {
+                            layer.msg("删除失败"); // 提示删除失败
+                        }
+                    });
+                    layer.close(index); // 关闭弹窗
+                }
+            });
+        }
+        
+        // 表单验证
+        form.verify({
+            username: [/^[\S]{2,12}$/, '用户名长度必须3到12位，且不能出现空格'],
+            password: [/^[\S]{3,12}$/, '密码必须3到12位，且不能出现空格'],
+            phone: function (value, item) {
+                if (value.trim().length > 0) {
+                    var rule = /^1\d{10}$/;
+                    if (!rule.test(value)) {
+                        return '手机号码必须11位数字！'
+                    }
+                }
+            }
+        });
+
+        // 搜索
+        function searchUser() {
+            let keyword = $('#keyword').val().trim();
+            userTable.reload({
+                method: 'GET',
+                where: {
+                    'name': keyword
+                },
+                page: {
+                    curr: 1 // 重新从第1页开始
+                }
+            });
+            $('#keyword').val(keyword);
+        }
+    });
+</script>
+         
+<!-- 操作栏模板 -->
+<script type="text/html" id="operate">
+    <div>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </div>
+</script>
+         
+<script type="text/html" id="toolbar">
+    <div id="search">
+        <div class="layui-inline">
+            <input id="keyword" class="layui-input" autocomplete="off" placeholder="请输入文本" style="font-size: 16px">
+        </div>
+        <button class="layui-btn" data-type="reload" style="font-size: 16px;background-color: rgba(28, 119, 180, 0.8)"
+                lay-event="search">
+            搜索
+        </button>
+    </div>
+</script>
+     
+{% endblock%}
