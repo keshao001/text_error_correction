@@ -11,8 +11,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
   const { signup } = useAuth()
   const router = useRouter()
@@ -22,7 +23,7 @@ export default function SignupPage() {
     setError('')
 
     try {
-      await signup(email, password)
+      await signup(username, password)
       router.push('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : '注册失败')
@@ -40,21 +41,30 @@ export default function SignupPage() {
             {error && <div className='text-sm text-red-500 mb-4'>{error}</div>}
             <div className='space-y-2'>
               <Input
-                type='email'
-                placeholder='邮箱'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                  type='text'
+                  placeholder='用户名'
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
               />
             </div>
             <div className='space-y-2'>
               <Input
-                type='password'
-                placeholder='密码'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                  type='password'
+                  placeholder='密码'
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
               />
+            </div>
+            <div className='space-y-2'>
+            <Input
+                type='tel'
+                placeholder='手机号'
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+            />
             </div>
             <Button type='submit' className='w-full'>
               注册

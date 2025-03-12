@@ -10,14 +10,14 @@ import {
 
 type User = {
   id: string
-  email: string
+  username: string
 } | null
 
 type AuthContextType = {
   user: User
   isLoading: boolean
-  login: (email: string, password: string) => Promise<void>
-  signup: (email: string, password: string) => Promise<void>
+  login: (username : string, password: string) => Promise<void>
+  signup: (username: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -49,7 +49,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkSession = async () => {
     try {
-      const res = await fetch('/api/auth/session')
+      const res = await fetch('/api/user/get_session',{
+        method: 'GET'
+      })
       if (!res.ok) {
         setUser(null)
         return
@@ -58,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         setUser({
           id: session.user.userId,
-          email: session.user.email,
+          username: session.user.username,
         })
       } else {
         setUser(null)
@@ -71,19 +73,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/user/login_check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // 修改了header
+         body: new URLSearchParams({ username, password }), // 使用URLSearchParams发送表单数据
       })
 
       if (!res.ok) {
         const error = await res.json()
         throw new Error(error.error || 'Login failed')
       }
-
       const { user } = await res.json()
       setUser(user)
     } catch (error) {
@@ -92,12 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const signup = async (email: string, password: string) => {
+
+  const signup = async (username: string, password: string, phone: string) => {
     try {
-      const res = await fetch('/api/auth/signup', {
+      const res = await fetch('/api/user/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // 修改了header
+        body: new URLSearchParams({ username, password, phone}), // 使用URLSearchParams发送表单数据
       })
 
       if (!res.ok) {
@@ -115,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      await fetch('/api/logout', { method: 'POST' })
       setUser(null)
       await checkSession() // This will set the user to default user if available
     } catch (error) {

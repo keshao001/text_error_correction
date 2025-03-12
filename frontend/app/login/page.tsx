@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const { login, isLoading } = useAuth()
@@ -22,8 +22,8 @@ export default function LoginPage() {
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault()
-    setEmail('default@user.local')
-    setPassword('123456')
+    setUsername('admin')
+    setPassword('123')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await login(email, password)
+      await login(username, password)
       router.push('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : '登录失败')
@@ -54,10 +54,10 @@ export default function LoginPage() {
             {error && <div className='text-sm text-red-500 mb-4'>{error}</div>}
             <div className='space-y-2'>
               <Input
-                type='email'
-                placeholder='邮箱'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type='text'
+                placeholder='用户名'
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -70,6 +70,7 @@ export default function LoginPage() {
                 required
               />
             </div>
+
             <Button
               type='submit'
               className='w-full'
@@ -77,6 +78,7 @@ export default function LoginPage() {
             >
               {isSubmitting ? '登录中...' : '登录'}
             </Button>
+
             <div className='text-center text-sm text-gray-600'>
               还没有账号？{' '}
               <Link href='/signup' className='text-blue-600 hover:underline'>

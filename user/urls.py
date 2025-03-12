@@ -11,4 +11,5 @@ urlpatterns = [
     path('edit_user',views.edit_user), # 编辑用户信息
     path('del_user',views.del_user), # 删除用户信息
     path('password', views.password), # 跳转忘记密码页面
+    path('get_session',views.get_session),
 ]

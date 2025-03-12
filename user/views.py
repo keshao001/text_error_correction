@@ -168,5 +168,12 @@ def change_password(request):
         del request.session['username']
         return JsonResponse({"msg": "success"})
 
+def get_session(request):
+    # 获取用户的会话信息
+    username = request.session['username']
+    userId = request.session['user_id']
+    response_data = {'username': username, 'userId': userId}
+    return JsonResponse(response_data)
+
 
 

@@ -8,6 +8,7 @@ urlpatterns = [
     path('index', views.index), # 首页
     path('login_out', views.login_out), # 退出登录
 
+
     # 文本模块
     path('wbjc',views.wbjc), # 跳转文本纠错页面
     path('wbgl',views.wbgl), # 跳转文本管理页面

@@ -40,7 +40,9 @@ export default function UploadPage() {
   useEffect(() => {
     const checkSession = async () => {
       setIsLoading(true)
-      const res = await fetch('/api/auth/session')
+      const res = await fetch('/api/user/get_session',{
+        method: 'GET'
+      })
       if (!res.ok) {
         setIsLoading(false)
         router.push('/login')
