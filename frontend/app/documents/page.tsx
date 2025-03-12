@@ -1,5 +1,4 @@
 'use client'
-
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
@@ -21,23 +20,20 @@ import { formatFileSize, formatDate } from '@/lib/utils'
 import { Download } from 'lucide-react'
 
 interface Document {
-  id: string
-  title: string
-  fileType: string
-  fileSize: number
-  totalPages: number
+  id: number
+  name: string
+  src: string
+  dest: string
+  owner: string
   status: string
-  createdAt: string
+  create_time: string
 }
 
 interface PaginationResponse {
-  items: Document[]
-  pagination: {
-    total: number
-    page: number
-    pageSize: number
-    totalPages: number
-  }
+  code: number
+  msg: string
+  count: number
+  data: Document[]
 }
 
 export default function DocumentsPage() {
@@ -46,7 +42,7 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState<number | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize] = useState(5)
   const [total, setTotal] = useState(0)
@@ -56,7 +52,7 @@ export default function DocumentsPage() {
     const fetchDocuments = async () => {
       try {
         const response = await fetch(
-          `/api/documents?page=${page}&pageSize=${pageSize}`
+          `/api/get_wd?page=${page}&limit=${pageSize}`
         )
         if (!response.ok) {
           if (response.status === 401) {
@@ -66,9 +62,9 @@ export default function DocumentsPage() {
           throw new Error('获取文档列表失败')
         }
         const data: PaginationResponse = await response.json()
-        setDocuments(data.items)
-        setTotal(data.pagination.total)
-        setTotalPages(data.pagination.totalPages)
+        setDocuments(data.data)
+        setTotal(data.count)
+        setTotalPages(Math.ceil(data.count / pageSize))
         setIsLoading(false)
       } catch (err) {
         setError(err instanceof Error ? err.message : '发生错误')
@@ -80,14 +76,14 @@ export default function DocumentsPage() {
     }
   }, [authLoading, page, pageSize, router])
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`确定要删除文档 "${title}" 吗？此操作不可恢复。`)) {
+  const handleDelete = async (id: number, name: string) => {
+    if (!confirm(`确定要删除文档 "${name}" 吗？此操作不可恢复。`)) {
       return
     }
 
     setIsDeleting(id)
     try {
-      const response = await fetch(`/api/documents/${id}`, {
+      const response = await fetch(`/api/del_doc/${id}`, {
         method: 'DELETE',
       })
 
@@ -139,93 +135,59 @@ export default function DocumentsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-1/4'>文档信息</TableHead>
-                  <TableHead className='w-1/6'>类型</TableHead>
-                  <TableHead className='w-1/6'>大小</TableHead>
-                  <TableHead className='w-1/6'>页数</TableHead>
+                  <TableHead className='w-1/4'>文档名</TableHead>
+                  <TableHead className='w-1/6'>所有者</TableHead>
                   <TableHead className='w-1/6'>状态</TableHead>
+                  <TableHead className='w-1/6'>创建时间</TableHead>
                   <TableHead className='w-1/4'>操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {documents.map((doc) => (
                   <TableRow key={doc.id}>
-                    <TableCell>
-                      <div>
-                        <div className='font-medium'>{doc.title}</div>
-                        <div className='text-sm text-gray-500'>
-                          创建时间: {formatDate(doc.createdAt)}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{doc.fileType}</TableCell>
-                    <TableCell>{formatFileSize(doc.fileSize)}</TableCell>
-                    <TableCell>{doc.totalPages} 页</TableCell>
+                    <TableCell className='font-medium'>{doc.name}</TableCell>
+                    <TableCell>{doc.owner}</TableCell>
                     <TableCell>
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          doc.status === 'ai-corrected' ||
-                          doc.status === 'manual-corrected'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                          doc.status === '有错误'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
                         }`}
                       >
-                        {doc.status === 'ai-corrected'
-                          ? '已AI校对'
-                          : doc.status === 'manual-corrected'
-                          ? '已手工校对'
-                          : '未校对'}
+                        {doc.status}
                       </span>
                     </TableCell>
+                    <TableCell>{formatDate(doc.create_time)}</TableCell>
                     <TableCell>
                       <div className='flex space-x-2'>
                         <Link href={`/documents/${doc.id}`}>
                           <Button variant='outline' size='sm'>
-                            AI校对
+                            查看详情
                           </Button>
                         </Link>
-                        {
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            onClick={() => {
-                              if (
-                                doc.status !== 'pending' ||
-                                confirm(
-                                  '该文档尚未经过AI校对，继续手工校对将使用原始内容作为校对内容。是否继续？'
-                                )
-                              ) {
-                                window.location.href = `/documents/${doc.id}/manual-correct`
-                              }
-                            }}
-                          >
-                            手工校对
-                          </Button>
-                        }
                         <Button
                           variant='outline'
                           size='sm'
                           onClick={() => downloadDocument(doc.id, 'original')}
                         >
                           <Download className='h-4 w-4' />
-                          原始版
+                          下载原文
                         </Button>
-                        {doc.status !== 'pending' && (
+                        {doc.dest && (
                           <Button
                             variant='outline'
                             size='sm'
-                            onClick={() =>
-                              downloadDocument(doc.id, 'corrected')
-                            }
+                            onClick={() => downloadDocument(doc.id, 'corrected')}
                           >
                             <Download className='h-4 w-4' />
-                            校对版
+                            下载更正版
                           </Button>
                         )}
                         <Button
                           variant='destructive'
                           size='sm'
-                          onClick={() => handleDelete(doc.id, doc.title)}
+                          onClick={() => handleDelete(doc.id, doc.name)}
                           disabled={isDeleting === doc.id}
                         >
                           {isDeleting === doc.id ? '删除中...' : '删除'}

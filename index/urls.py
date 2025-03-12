@@ -19,8 +19,8 @@ urlpatterns = [
 
     # 文档模块
     path('wdjc',views.wdjc), # 跳转文档纠错页面
-    path('wdgl',views.wdgl), # 跳转文档管理页面
-    path('get_wd',views.get_wd), # 获取文档
+    path('wdgl',views.wdgl), # 跳转文档分页页面
+    path('get_wd',views.get_wdv1), # 文档分页功能
     path('del_doc',views.del_doc), # 删除文档
     path('correct_doc', views.correct_doc), # 纠错文档
     path('get_result/<doc_id>',views.getdoccorrectresult), # 根据文档ID获取纠错结果

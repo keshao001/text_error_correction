@@ -238,7 +238,7 @@ def wdgl(request):
     user_id = request.session['user_id']
     return render(request, 'wdgl.html', locals())
 
-def get_wd(request):
+def get_wdv1(request):
     keyword = request.GET.get('name')
     page = request.GET.get("page", '')
     limit = request.GET.get("limit", '')
@@ -274,6 +274,38 @@ def get_wd(request):
         response_data['data'] = data
     return JsonResponse(response_data)
 
+def get_wdv2(request):
+    username = request.session['username']
+    page = request.GET.get("page", '')
+    limit = request.GET.get("pagesize", '')
+    role_id = request.GET.get('position', '')
+
+    response_data = {}
+    response_data['code'] = 0
+    response_data['msg'] = ''
+    data = []
+
+    results_obj = Document.objects.filter(owner=username).all()
+
+    paginator = Paginator(results_obj, limit)
+    results = paginator.page(page)
+
+    if results:
+        for res in results:
+            record = {
+                "id": res.id,
+                "name": res.name,
+                "src": res.src,
+                "dest": res.dest,
+                "owner": res.owner,
+                "status": res.status,
+                'create_time': res.create_time.strftime('%Y-%m-%d %H:%m:%S'),
+            }
+            data.append(record)
+
+        response_data['count'] = len(results_obj)
+        response_data['data'] = data
+    return JsonResponse(response_data)
 def correct_doc(request):
     if request.method == 'POST':
         doc = request.FILES.get('document')
