@@ -1,0 +1,8 @@
+{
+  "/upload/page": "app/upload/page.js",
+  "/page": "app/page.js",
+  "/login/page": "app/login/page.js",
+  "/documents/page": "app/documents/page.js",
+  "/knowledges/page": "app/knowledges/page.js",
+  "/conversations/page": "app/conversations/page.js"
+}
