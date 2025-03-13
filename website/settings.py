@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tp!-oba8k_&by9pw3twb9gnt!2p*llm+q$b0*g!m9k+@myc@e+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -111,8 +111,6 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 
 USE_L10N = True
-
-
 
 CORS_ORIGIN_ALLOW_ALL = True  # 允许所有域名跨域(优先选择)
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie:

@@ -1,5 +1,5 @@
 # 1.0版本运行步骤：
-需要先安装Python的相关依赖：django==3.2.8, mysql, requests
+需要先安装Python的相关依赖：pip install -r requirements.txt
 
 1、创建数据库，数据库名：text_error_correction
 
