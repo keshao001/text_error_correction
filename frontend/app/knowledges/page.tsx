@@ -18,23 +18,39 @@ import {
 } from '@/components/ui/table'
 import { KnowledgeModal } from '@/components/knowledge/create-knowledge-modal'
 
+// interface Knowledge {
+//   id: string
+//   name: string
+//   desc: string
+//   createdAt: string
+//   updatedAt: string
+//   fileCount: number
+// }
+//
+// interface PaginationResponse {
+//   items: Knowledge[]
+//   pagination: {
+//     total: number
+//     page: number
+//     pageSize: number
+//     totalPages: number
+//   }
+// }
 interface Knowledge {
-  id: string
+  id: number
   name: string
-  desc: string
-  createdAt: string
-  updatedAt: string
-  fileCount: number
+  src: string
+  dest: string
+  owner: string
+  status: string
+  create_time: string
 }
 
 interface PaginationResponse {
-  items: Knowledge[]
-  pagination: {
-    total: number
-    page: number
-    pageSize: number
-    totalPages: number
-  }
+  code: number
+  msg: string
+  count: number
+  data: Knowledge[]
 }
 
 export default function KnowledgesPage() {
@@ -47,7 +63,7 @@ export default function KnowledgesPage() {
   const fetchKnowledges = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/knowledges')
+      const response = await fetch('/api/get_knowledge')
       if (!response.ok) {
         if (response.status === 401) {
           router.push('/login')
@@ -56,7 +72,7 @@ export default function KnowledgesPage() {
         throw new Error('Failed to fetch knowledges')
       }
       const data = await response.json()
-      setKnowledges(data.items)
+      setKnowledges(data.data)
     } catch (error) {
       console.error('Error fetching knowledges:', error)
       setError('Failed to fetch knowledge bases')
@@ -71,13 +87,13 @@ export default function KnowledgesPage() {
     }
   }, [authLoading, router, fetchKnowledges])
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this knowledge base?')) {
       return
     }
 
     try {
-      const response = await fetch(`/api/knowledges/${id}`, {
+      const response = await fetch(`/api/del_doc/${id}`, {
         method: 'DELETE',
       })
 
@@ -139,12 +155,12 @@ export default function KnowledgesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>文件数量</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead>Updated At</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>文件名</TableHead>
+                <TableHead>文件描述</TableHead>
+                <TableHead>上传人员</TableHead>
+                <TableHead>创建时间</TableHead>
+                {/*<TableHead>更新时间</TableHead>*/}
+                <TableHead>操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -153,21 +169,18 @@ export default function KnowledgesPage() {
                   <TableCell className='font-medium'>
                     {knowledge.name}
                   </TableCell>
-                  <TableCell>{knowledge.desc}</TableCell>
-                  <TableCell>{knowledge.fileCount}</TableCell>
+                  <TableCell>{knowledge.status}</TableCell>
+                  <TableCell>{knowledge.owner}</TableCell>
                   <TableCell>
-                    {new Date(knowledge.createdAt).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(knowledge.updatedAt).toLocaleString()}
+                    {new Date(knowledge.create_time).toLocaleString()}
                   </TableCell>
                   <TableCell>
                     <div className='flex items-center gap-2'>
-                      <KnowledgeModal
-                        mode='edit'
-                        knowledge={knowledge}
-                        onComplete={handleRefresh}
-                      />
+                      {/*<KnowledgeModal*/}
+                      {/*  mode='edit'*/}
+                      {/*  knowledge={knowledge}*/}
+                      {/*  onComplete={handleRefresh}*/}
+                      {/*/>*/}
                       <Link href={`/knowledges/${knowledge.id}`}>
                         <Button variant='outline' size='sm'>
                           查看文件

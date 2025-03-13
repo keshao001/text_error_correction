@@ -24,4 +24,6 @@ urlpatterns = [
     path('del_doc',views.del_doc), # 删除文档
     path('correct_doc', views.correct_doc), # 纠错文档
     path('get_result/<doc_id>',views.getdoccorrectresult), # 根据文档ID获取纠错结果
+    path('get_knowledge',views.get_knowledge), # 文档分页功能
+    path('upload_knowledge',views.upload_knowledge), # 跳转文档分页页面
 ]

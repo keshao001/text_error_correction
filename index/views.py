@@ -398,3 +398,42 @@ def getdoccorrectresult(request,doc_id):
     doc = Document.objects.filter(id=doc_id).first()
     result = doc.dest
     return JsonResponse({"result":result})
+
+def get_knowledge(request):
+    username = request.session['username']
+    response_data = {}
+    response_data['code'] = 0
+    response_data['msg'] = ''
+    data = []
+
+    results = Document.objects.filter(owner=username).all()
+
+    if results:
+        for res in results:
+            if res.status == "知识库":
+                record = {
+                    "id": res.id,
+                    "name": res.name,
+                    "src": res.src,
+                    "dest": res.dest,
+                    "owner": res.owner,
+                    "status": res.status,
+                    'create_time': res.create_time.strftime('%Y-%m-%d %H:%m:%S'),
+                }
+                data.append(record)
+        response_data['count'] = len(results)
+        response_data['data'] = data
+    return JsonResponse(response_data)
+
+def upload_knowledge(request):
+    if request.method == 'POST':
+        doc = request.FILES.get('document')
+    doc_content = docx.Document(doc)
+    status = '知识库'
+    Document.objects.create(name=doc.name,
+                       src=doc_content,
+                       dest="",
+                       status=status,
+                       owner=request.session.get('username', 'admin'),
+                       )
+    return JsonResponse({'msg': '上传成功'})

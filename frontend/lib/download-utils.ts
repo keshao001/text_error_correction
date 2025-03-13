@@ -1,4 +1,4 @@
-export async function downloadDocument(documentId: string, type: 'original' | 'corrected' = 'original') {
+export async function downloadDocument(documentId: number, type: 'original' | 'corrected' = 'original') {
   try {
     const response = await fetch(`/api/downloadDocument?id=${documentId}&type=${type}`, {
       method: 'GET'

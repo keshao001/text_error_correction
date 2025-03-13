@@ -9,14 +9,13 @@ interface FileInfo {
 }
 
 interface Document {
-  title: string
-  parsedContent: string
-  originalContent: string
-  fileName: string
-  fileType: string
-  fileSize: number
-  totalPages: number
+  id: number
+  name: string
+  src: string
+  dest: string
+  owner: string
   status: string
+  create_time: string
 }
 
 async function generateFileHash(content: string): Promise<string> {
@@ -56,7 +55,7 @@ export default function UploadPage() {
   }, [router])
 
   const handleUploadComplete = async (fileInfo: any) => {
-    if (mode === 'document') {
+   if (mode === 'document') {
       const document: Document = {
         title: fileInfo.title || fileInfo.originalname,
         parsedContent: '',
@@ -88,15 +87,6 @@ export default function UploadPage() {
         throw new Error('Knowledge ID is required')
       }
 
-      // // Create form data
-      // const formData = new FormData()
-      // formData.append('file', fileInfo.file)
-      // formData.append('knowledgeId', knowledgeId)
-      // formData.append('name', fileInfo.title || fileInfo.originalname)
-      // formData.append('content', fileInfo.content)
-      // formData.append('fileType', fileInfo.fileType)
-      // formData.append('fileSize', fileInfo.fileSize.toString())
-      // formData.append('fileHash', await generateFileHash(fileInfo.content))
 
       // Upload file
       const res = await fetch('/api/knowledge-files', {
@@ -121,7 +111,6 @@ export default function UploadPage() {
           error.error?.message || 'Failed to upload knowledge file'
         )
       }
-
       router.push(`/knowledges/${knowledgeId}`)
     }
   }
