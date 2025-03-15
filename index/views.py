@@ -2,7 +2,6 @@ from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 
-from llm.RAG.RAGprompt import RAGPromptEnhancer
 from llm.TextHighlighter import TextHighlighter
 from llm.qwen import ChatCompletion
 from user.models import User
@@ -359,40 +358,40 @@ def correct_textv1(request):
 
     return JsonResponse({"result": highlighted_text, 'status': status, 'error': 0})
 
-def correct_textv2(request):
-    text = request.POST.get('text')
-    #text = 涡伦风扇发动机通过压起机和燃烧室产生推力，推动飞机前进并提高效率，大大提高比腿力。
-
-    # RAG增强
-    # 用于增强的文本
-    pdf_path = "C:\\Users\\18817\\Desktop\\text_error_correction\\llm\\RAG\\RAGResources\\RAG.pdf"
-    # 分词模型
-    model_path = "C:\\Users\\18817\\Desktop\\text_error_correction\\llm\\RAG\\EmbeddingModels\\m3e-base"
-    # 创建 RAGPromptEnhancer 实例
-    enhancer = RAGPromptEnhancer(pdf_path, model_path)
-    # 增强的文本
-    enhanced_text = enhancer.enhance_prompt(text)
-
-    # 大模型更正
-    chat = ChatCompletion()
-    result = chat.get_response(enhanced_text)
-
-    highlighter = TextHighlighter(text, result)
-    highlighted_text = highlighter.highlight_differences()
-
-    if text ==result:
-        status = '无错误'
-    else:
-        status = '有错误'
-
-    Text.objects.create(
-                       src=text,
-                       dest=result,
-                       status=status,
-                       owner=request.session.get('username', 'admin'),
-                       )
-
-    return JsonResponse({"result": highlighted_text, 'status': status, 'error': 0})
+# def correct_textv2(request):
+#     text = request.POST.get('text')
+#     #text = 涡伦风扇发动机通过压起机和燃烧室产生推力，推动飞机前进并提高效率，大大提高比腿力。
+#
+#     # RAG增强
+#     # 用于增强的文本
+#     pdf_path = "C:\\Users\\18817\\Desktop\\text_error_correction\\llm\\RAG\\RAGResources\\RAG.pdf"
+#     # 分词模型
+#     model_path = "C:\\Users\\18817\\Desktop\\text_error_correction\\llm\\RAG\\EmbeddingModels\\m3e-base"
+#     # 创建 RAGPromptEnhancer 实例
+#     enhancer = RAGPromptEnhancer(pdf_path, model_path)
+#     # 增强的文本
+#     enhanced_text = enhancer.enhance_prompt(text)
+#
+#     # 大模型更正
+#     chat = ChatCompletion()
+#     result = chat.get_response(enhanced_text)
+#
+#     highlighter = TextHighlighter(text, result)
+#     highlighted_text = highlighter.highlight_differences()
+#
+#     if text ==result:
+#         status = '无错误'
+#     else:
+#         status = '有错误'
+#
+#     Text.objects.create(
+#                        src=text,
+#                        dest=result,
+#                        status=status,
+#                        owner=request.session.get('username', 'admin'),
+#                        )
+#
+#     return JsonResponse({"result": highlighted_text, 'status': status, 'error': 0})
 
 def getdoccorrectresult(request,doc_id):
     doc = Document.objects.filter(id=doc_id).first()
