@@ -14,7 +14,7 @@ urlpatterns = [
     path('wbgl',views.wbgl), # 跳转文本管理页面
     path('get_wb',views.get_wb), # 获取文本
     path('del_wb',views.del_wb), # 删除文本
-    path('correct_text',views.correct_textv2), # 纠错文本
+    path('correct_text',views.correct_textv1), # 纠错文本
     # path('correct_textv2', views.correct_textv2),  # RAG增强，纠错文本
 
     # 文档模块

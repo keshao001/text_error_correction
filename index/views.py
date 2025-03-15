@@ -335,7 +335,7 @@ def correct_doc(request):
                        )
     return JsonResponse({"result": highlighted_text, 'status': status, 'error': 0})
 
-def correct_text(request):
+def correct_textv1(request):
     text = request.POST.get('text')
     #text = 这理风景绣丽，而且天汽不错，我的心情各外舒畅!
 
